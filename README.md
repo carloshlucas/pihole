@@ -9,127 +9,70 @@ I assume that you already have your Kubernetes cluster up and running!
 1. Namespace
 2. Persistent Volume
 3. Persistent Volume Claim
+4. Ingress (Ingress Controller must be deployed)
+5. Pi-hole Deploy via Helm
+6. Generate Certificate
 
-**lsblk**
+## Create the objects (Step 1,2,3 and 4)
 
-Used to list device and view status.
-
-```
-[root@chlabkubn02 ~]# lsblk
-NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
-sda               8:0    0   20G  0 disk
-├─sda1            8:1    0    1G  0 part /boot
-└─sda2            8:2    0   19G  0 part
-  ├─centos-root 253:0    0   17G  0 lvm  /
-  └─centos-swap 253:1    0    2G  0 lvm
-sdb               8:16   0   10G  0 disk
-sr0              11:0    1  4.3G  0 rom
-```
-
-**pvcreate**
-```    
-[root@chlabkubn02 ~]# pvcreate /dev/sdb
-  Physical volume "/dev/sdb" successfully created.
-```
-
-**pvs**
-
-Used to list phisycal Volume.
+Apply the yaml file below to you Kubernetes Cluster
 
 ```
-[root@chlabkubn02 ~]# pvs
-  PV         VG     Fmt  Attr PSize   PFree
-  /dev/sda2  centos lvm2 a--  <19.00g     0
-  /dev/sdb          lvm2 ---   10.00g 10.00g
+kubectl apply -f pihole.yaml
 ```
 
-**vgcreate**
+## Pi-hole Deploy via Helm
 
-Used to initialize an entire disk or a disk partition for use LVM.
-
+**ADD HEML CHARTS**
 ```
-[root@chlabkubn02 ~]# vgcreate chlabvg01 /dev/sdb
-  Volume group "chlabvg01" successfully created
-  
-```
-**vgs** 
-
-Used to list a logical volume group
-
-```
-[root@chlabkubn02 ~]# vgs
-  VG        #PV #LV #SN Attr   VSize   VFree
-  centos      1   2   0 wz--n- <19.00g      0
-  chlabvg01   1   0   0 wz--n- <10.00g <10.00g
+helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes/
+helm repo update
 ```
 
-**lvcreate** 
-
-Used to create a logical volume lvcreate.
-
+**INSTALLING HELM CHARTS**
 ```
-[root@chlabkubn02 ~]# lvcreate -L 5000 -n chlablv01 chlabvg01
-  Logical volume "chlablv01" created.
+helm install pihole mojo2600/pihole --namespace pihole --values pihole.values.yml
 ```
 
-**lvs**
+### GENERATE CERTIFICATE
 
-Used to list Logical Volume created.
-
-```
-[root@chlabkubn02 ~]# lvs
-  LV        VG        Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
-  root      centos    -wi-ao---- <17.00g
-  swap      centos    -wi-a-----   2.00g
-  chlablv01 chlabvg01 -wi-a-----   4.88g
-```
-
-**vgdisplay**
-
- Used to get details about VG.
+Procedure to create CSR with SAN
+Login into a server where you have OpenSSL installed
+Go to /tmp or create any directory
+Create a file named san.cnf using vi (if on Unix) with the following information
 
 ```
-[root@chlabkubn02 ~]# vgdisplay -v chlabvg01
-  --- Volume group ---
-  VG Name               chlabvg01
-  System ID
-  Format                lvm2
-  Metadata Areas        1
-  Metadata Sequence No  2
-  VG Access             read/write
-  VG Status             resizable
-  MAX LV                0
-  Cur LV                1
-  Open LV               0
-  Max PV                0
-  Cur PV                1
-  Act PV                1
-  VG Size               <10.00 GiB
-  PE Size               4.00 MiB
-  Total PE              2559
-  Alloc PE / Size       1250 / 4.88 GiB
-  Free  PE / Size       1309 / 5.11 GiB
-  VG UUID               HPzBOj-N5vb-cAsn-JnL8-TBhD-cKYv-lBhVKc
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+[ req_distinguished_name ]
+countryName                 = Country Name (2 letter code)
+stateOrProvinceName         = State or Province Name (full name)
+localityName               = Locality Name (eg, city)
+organizationName           = Organization Name (eg, company)
+commonName                 = Common Name (e.g. server FQDN or YOUR name)
+[ req_ext ]
+subjectAltName = @alternative_names
+[alternative_names]
+DNS.1   = chlabpihole.chlab.local
+DNS.2   = 192.168.15.180
 
-  --- Logical volume ---
-  LV Path                /dev/chlabvg01/chlablv01
-  LV Name                chlablv01
-  VG Name                chlabvg01
-  LV UUID                9QFKTY-Ks4F-dS7F-cAJ4-gzpa-PSus-F2gwqG
-  LV Write Access        read/write
-  LV Creation host, time chlabkubn02.chlab.local, 2019-06-26 10:33:47 +0200
-  LV Status              available
-  # open                 0
-  LV Size                4.88 GiB
-  Current LE             1250
-  Segments               1
-  Allocation             inherit
-  Read ahead sectors     auto
-  - currently set to     256
-  Block device           253:2
+Note: alt_names section is the one you have to change for additional DNS.
+```
 
-  --- Physical volumes ---
-  PV Name               /dev/sdb
-  PV UUID               08iD6Q-zepH-L8Ce-FI1N-bgjN-aPpS-Ur2mwR
-  PV Status             allocatable
-  Total PE / Free PE    2559 / 1309
+Save the file and execute the following OpenSSL command, which will generate CSR and KEY file
+
+```
+openssl req -newkey rsa:2048 -nodes -out tls.csr -keyout tls.key -config san.cnf
+```
+
+##### References
+
+https://github.com/MoJo2600/pihole-kubernetes
+
+https://kauri.io/68-selfhost-pihole-on-kubernetes-and-block-ads-and/5268e3daace249aba7db0597b47591ef/a
+
+
+
+
