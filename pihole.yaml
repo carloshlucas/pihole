@@ -2,7 +2,7 @@
 # Create Namespace
 
 apiVersion: v1
-kind: namespace
+kind: Namespace
 metadata:
   name: pihole
 ---
@@ -14,11 +14,8 @@ metadata:
   name: pihole-secret
 type: Opaque
 data:
-  password: Q2FzYUAxMjM=
-
-
+  password: W&EHNDJGRHKWdc
 ---
-
 # Create Persistent Volume
 
 apiVersion: v1
@@ -39,7 +36,6 @@ spec:
   nfs:
     path: /mnt/chlabpihole01/pihole
     server: 192.168.15.21
-
 ---
 # Create Persistent Volume Claim
 
@@ -55,4 +51,24 @@ spec:
   resources:
     requests:
       storage: "500Mi"
+---
+
+# Ingress
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: pihole
+  name: pihole-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: chlabpihole.chlab.local #change the name to your fqdn
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: pihole-tcp
+            servicePort: 80
 ---
