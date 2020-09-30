@@ -76,7 +76,6 @@ Save the file and execute the following OpenSSL command, which will generate CSR
 ```
 openssl req -newkey rsa:2048 -nodes -out tls.csr -keyout tls.key -config san.cnf
 ```
-
 ##### References
 
 https://github.com/MoJo2600/pihole-kubernetes
