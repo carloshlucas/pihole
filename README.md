@@ -4,6 +4,14 @@ This project shows how to install and configure Pihole on your environment to bl
 
 I assume that you already have your Kubernetes cluster up and running!
 
+## My Lab
+
+* Windows Server as DHCP
+* DNS Server (Forwarding the consult to Pihole)
+* Kubernetes
+* MetalLB
+* NGINX Controller
+
 ## Step by Step
 
 1. Namespace
@@ -68,7 +76,6 @@ Save the file and execute the following OpenSSL command, which will generate CSR
 ```
 openssl req -newkey rsa:2048 -nodes -out tls.csr -keyout tls.key -config san.cnf
 ```
-
 ##### References
 
 https://github.com/MoJo2600/pihole-kubernetes
