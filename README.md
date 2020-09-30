@@ -4,6 +4,14 @@ This project shows how to install and configure Pihole on your environment to bl
 
 I assume that you already have your Kubernetes cluster up and running!
 
+## My Lab
+
+* Windows Server as DHCP
+* DNS Server (Forwarding the consult to Pihole)
+* Kubernetes
+* MetalLB
+* NGINX Controller
+
 ## Step by Step
 
 1. Namespace
