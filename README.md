@@ -36,6 +36,8 @@ helm install pihole mojo2600/pihole --namespace pihole --values pihole.values.ym
 
 ### GENERATE CERTIFICATE
 
+*** This step is not mandatory ***
+
 Procedure to create CSR with SAN
 Login into a server where you have OpenSSL installed
 Go to /tmp or create any directory
@@ -73,6 +75,7 @@ https://github.com/MoJo2600/pihole-kubernetes
 
 https://kauri.io/68-selfhost-pihole-on-kubernetes-and-block-ads-and/5268e3daace249aba7db0597b47591ef/a
 
+https://geekflare.com/san-ssl-certificate/
 
 
 
