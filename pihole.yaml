@@ -14,7 +14,7 @@ metadata:
   name: pihole-secret
 type: Opaque
 data:
-  password: Q2FzYUAxMjM=
+  password: W&EHNDJGRHKWdc
 ---
 # Create Persistent Volume
 
