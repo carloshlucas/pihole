@@ -71,4 +71,9 @@ spec:
           backend:
             serviceName: pihole-tcp
             servicePort: 80
+  tls:                         #If you are not using certificates remove tls part
+  - hosts:
+    - chlabpihole.chlab.local
+    secretName: secret-pihole
+
 ---
