@@ -30,9 +30,6 @@ spec:
     storage: "500Mi"
   accessModes:
     - ReadWriteOnce
-  mountOptions:
-    - hard
-    - nfsvers=4.1
   nfs:
     path: /mnt/chlabpihole01/pihole
     server: 192.168.15.21
