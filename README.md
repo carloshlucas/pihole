@@ -39,7 +39,7 @@ helm repo update
 
 **INSTALLING HELM CHARTS**
 ```
-helm install pihole mojo2600/pihole --namespace pihole --values pihole.values.yaml
+helm install pihole mojo2600/pihole --namespace pi-hole --values pihole.values.yaml
 ```
 
 ### GENERATE CERTIFICATE
